@@ -35,8 +35,8 @@
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 8px;
-            font-size: 24px; /* 文字を大きく */
-            color: black; /* 文字の色を黒く */
+            font-size: 24px;
+            color: black;
             transition: opacity 0.5s ease-out, transform 0.5s ease-out;
         }
         .task-item.completed {
@@ -44,9 +44,9 @@
             transform: translateX(100%);
         }
         .input-field {
-            width: 80%; /* 入力欄を大きく */
+            width: 80%;
             padding: 10px;
-            font-size: 24px; /* 文字を大きく */
+            font-size: 24px;
             margin-bottom: 10px;
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -63,24 +63,46 @@
     <ul class="task-list" id="taskList"></ul>
 
     <script>
+        function loadTasks() {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = ''; // リストをクリア
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks.forEach(taskText => {
+                const taskItem = document.createElement('li');
+                taskItem.className = 'task-item';
+                taskItem.textContent = taskText;
+                taskItem.onclick = () => {
+                    taskItem.classList.add('completed');
+                    setTimeout(() => {
+                        removeTask(taskText);
+                        taskItem.remove();
+                    }, 500);
+                };
+                taskList.appendChild(taskItem);
+            });
+        }
+
         function addTask() {
             const taskInput = document.getElementById('taskInput');
             const taskText = taskInput.value;
             if (taskText === '') return;
             
-            const taskList = document.getElementById('taskList');
-            const taskItem = document.createElement('li');
-            taskItem.className = 'task-item';
-            taskItem.textContent = taskText;
-            taskItem.onclick = () => {
-                taskItem.classList.add('completed');
-                setTimeout(() => {
-                    taskItem.remove();
-                }, 500); // フェードアウトを0.5秒後にタスクを削除
-            };
-            taskList.appendChild(taskItem);
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks.push(taskText);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+
+            loadTasks();
             taskInput.value = '';
         }
+
+        function removeTask(taskText) {
+            let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks = tasks.filter(task => task !== taskText);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            loadTasks();
+        }
+
+        window.onload = loadTasks;
     </script>
 
 </body>
